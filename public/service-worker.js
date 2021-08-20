@@ -28,7 +28,7 @@ self.addEventListener("install", event => {
 
 self.addEventListener("fetch", event => {
   // non GET requests are not cached and requests to other origins are not cached
-  
+
 
   // handle runtime GET requests for data from /api routes
   if (event.request.url.includes("/api/")) {
@@ -42,6 +42,7 @@ self.addEventListener("fetch", event => {
           })
           .catch(() => caches.match(event.request));
       })
+        .catch(err => console.log("err"))
     );
     return;
   }
@@ -51,16 +52,11 @@ self.addEventListener("fetch", event => {
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
         return cachedResponse;
+      } else if (event.request.headers.get("accept").includes("text/html")) {
+        return caches.match("/")
       }
 
-      // request is not in cache. make network request and cache the response
-      return caches.open(RUNTIME_CACHE).then(cache => {
-        return fetch(event.request).then(response => {
-          return cache.put(event.request, response.clone()).then(() => {
-            return response;
-          });
-        });
-      });
+
     })
   );
 });
