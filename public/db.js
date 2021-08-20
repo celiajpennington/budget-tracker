@@ -1,0 +1,1 @@
+const indexedDB = window.indexedDB || window.mozIndexedDB
